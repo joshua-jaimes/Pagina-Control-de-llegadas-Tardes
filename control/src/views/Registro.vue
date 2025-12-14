@@ -25,20 +25,27 @@ let descriptorActual = null;
 
 // Cargar modelos desde /public/models
 async function cargarModelos() {
-  await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+  await faceapi.nets.ssdMobilenetv1.loadFromUri("/models");
   await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
   await faceapi.nets.faceRecognitionNet.loadFromUri("/models");
+
+  estado.value = "Modelos cargados, iniciando cámara...";
 }
+
 
 async function iniciarCamara() {
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   video.value.srcObject = stream;
+  await video.value.play();
 }
+
 
 function detectarRostro() {
   setInterval(async () => {
+    if (!video.value) return;
+
     const deteccion = await faceapi
-      .detectSingleFace(video.value, new faceapi.TinyFaceDetectorOptions())
+      .detectSingleFace(video.value)
       .withFaceLandmarks()
       .withFaceDescriptor();
 
@@ -52,6 +59,7 @@ function detectarRostro() {
     }
   }, 700);
 }
+
 
 function guardarPersona() {
   if (!nombre.value || !id.value || !descriptorActual) {
