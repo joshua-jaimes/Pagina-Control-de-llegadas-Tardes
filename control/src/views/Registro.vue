@@ -15,6 +15,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
+const faceapi = window.faceapi; // 👈 ESTO ES CLAVE
 
 const video = ref(null);
 const nombre = ref("");
@@ -23,7 +24,6 @@ const estado = ref("Cargando modelos...");
 const rostroDetectado = ref(false);
 let descriptorActual = null;
 
-// Cargar modelos desde /public/models
 async function cargarModelos() {
   await faceapi.nets.ssdMobilenetv1.loadFromUri("/models");
   await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
@@ -32,13 +32,11 @@ async function cargarModelos() {
   estado.value = "Modelos cargados, iniciando cámara...";
 }
 
-
 async function iniciarCamara() {
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   video.value.srcObject = stream;
   await video.value.play();
 }
-
 
 function detectarRostro() {
   setInterval(async () => {
@@ -60,29 +58,13 @@ function detectarRostro() {
   }, 700);
 }
 
-
-function guardarPersona() {
-  if (!nombre.value || !id.value || !descriptorActual) {
-    alert("Falta nombre, ID o rostro");
-    return;
-  }
-
-  const personas = JSON.parse(localStorage.getItem("personas") || "[]");
-  personas.push({ nombre: nombre.value, id: id.value, descriptor: descriptorActual });
-  localStorage.setItem("personas", JSON.stringify(personas));
-
-  alert("Persona registrada correctamente");
-  nombre.value = "";
-  id.value = "";
-  rostroDetectado.value = false;
-}
-
 onMounted(async () => {
   await cargarModelos();
   await iniciarCamara();
   detectarRostro();
 });
 </script>
+
 
 <style>
 .registro {
