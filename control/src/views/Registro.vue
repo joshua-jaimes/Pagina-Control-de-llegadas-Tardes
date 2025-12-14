@@ -43,9 +43,10 @@ function detectarRostro() {
     if (!video.value) return;
 
     const deteccion = await faceapi
-      .detectSingleFace(video.value)
-      .withFaceLandmarks()
-      .withFaceDescriptor();
+  .detectSingleFace(video.value) // 👈 SIN opciones Tiny
+  .withFaceLandmarks()
+  .withFaceDescriptor();
+
 
     if (deteccion) {
       estado.value = "✔ Rostro detectado";
